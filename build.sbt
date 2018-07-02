@@ -3,8 +3,8 @@ import sbt.Path._
 
 val catsVersion = "1.1.0"
 val catsEffectVersion = "0.10.1"
-val utilVersion = "18.6.0"
-val finagleVersion = "18.6.0"
+val utilVersion = "17.11.0"
+val finagleVersion = "17.11.0"
 
 organization in ThisBuild := "io.catbird"
 
