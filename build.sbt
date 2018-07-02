@@ -1,4 +1,5 @@
 import ReleaseTransformations._
+import sbt.Path._
 
 val catsVersion = "1.1.0"
 val catsEffectVersion = "0.10.1"
@@ -115,21 +116,17 @@ lazy val benchmark = project
   .enablePlugins(JmhPlugin)
   .dependsOn(util)
 
+lazy val artifactoryHost = "internal-bipro-artifactory-1634906620.us-east-1.elb.amazonaws.com"
+
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   homepage := Some(url("https://github.com/travisbrown/catbird")),
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false },
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-  },
+  publishTo := Some(
+    "spark-release-local" at s"http://$artifactoryHost/artifactory/spark-release-local"),
   autoAPIMappings := true,
   apiURL := Some(url("https://travisbrown.github.io/catbird/api/")),
   scmInfo := Some(
@@ -155,14 +152,4 @@ lazy val noPublishSettings = Seq(
   publishArtifact := false
 )
 
-credentials ++= (
-  for {
-    username <- Option(System.getenv().get("SONATYPE_USERNAME"))
-    password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
-  } yield Credentials(
-    "Sonatype Nexus Repository Manager",
-    "oss.sonatype.org",
-    username,
-    password
-  )
-).toSeq
+credentials in ThisBuild += Credentials(Path.userHome / ".ivy2" / ".credentials")
